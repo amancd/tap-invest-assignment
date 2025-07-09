@@ -28,19 +28,19 @@ class BondCubit extends Cubit<BondState> {
   }
 
   void filterBonds(String query) {
-    if (query.trim().isEmpty) {
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) {
       emit(BondState.loaded(_allBonds, ''));
       return;
     }
 
-    final words = query.toLowerCase().split(RegExp(r'\s+')); // split query by spaces
+    final words = trimmedQuery.toLowerCase().split(RegExp(r'\s+'));
     final filtered = _allBonds.where((bond) {
       final combined = '${bond.isin} ${bond.companyName} ${bond.rating} ${bond.tags.join(" ")}'.toLowerCase();
-      // Check if ANY word in the query exists in the combined string
       return words.any((word) => combined.contains(word));
     }).toList();
 
-    emit(BondState.loaded(filtered, query));
+    emit(BondState.loaded(filtered, trimmedQuery));
   }
 
 }

@@ -14,24 +14,32 @@ List<InlineSpan> highlightSpan({
   final lowerText = text.toLowerCase();
   final queries = query.toLowerCase().split(RegExp(r'\s+')).where((q) => q.isNotEmpty).toList();
 
-  final matches = <int, int>{}; // Map of match start index -> length
+  final matches = <MapEntry<int, int>>[];
 
   for (final q in queries) {
     int start = 0;
-    while (true) {
+    while (start < lowerText.length) {
       final index = lowerText.indexOf(q, start);
       if (index == -1) break;
-      matches[index] = q.length; // Overwrites if overlapping (optional)
-      start = index + 1;
+
+      // Skip if this index overlaps with a previous match
+      if (matches.any((m) => index < m.key + m.value && m.key < index + q.length)) {
+        start = index + 1;
+        continue;
+      }
+
+      matches.add(MapEntry(index, q.length));
+      start = index + q.length;
     }
   }
 
-  final sortedMatches = matches.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+  // Sort by match start position
+  matches.sort((a, b) => a.key.compareTo(b.key));
 
   int cursor = 0;
   final spans = <InlineSpan>[];
 
-  for (final match in sortedMatches) {
+  for (final match in matches) {
     final start = match.key;
     final length = match.value;
 
