@@ -116,44 +116,56 @@ class HomeScreenView extends StatelessWidget {
                   return state.when(
                     initial: () => const SizedBox.shrink(),
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    loaded: (bonds, highlightQuery) => SingleChildScrollView(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          children: List.generate(bonds.length, (index) {
-                            final bond = bonds[index];
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: index == bonds.length - 1 ? 0 : 12,
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => BlocProvider(
-                                        create: (_) => getIt<BondDetailCubit>()..loadBondDetail(bond.isin),
-                                        child: const BondDetailScreen(),
+                    loaded: (bonds, highlightQuery) {
+                      final isSearch = highlightQuery.trim().isNotEmpty;
+                      return SingleChildScrollView(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            children: List.generate(bonds.length, (index) {
+                              final bond = bonds[index];
+                              final isLast = index == bonds.length - 1;
+                              final showDivider = isSearch && bonds.length > 1 && !isLast;
+
+                              return Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => BlocProvider(
+                                            create: (_) => getIt<BondDetailCubit>()..loadBondDetail(bond.isin),
+                                            child: const BondDetailScreen(),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: BondCard(
+                                      bond: bond,
+                                      highlightQuery: highlightQuery,
+                                    ),
+                                  ),
+                                  if (showDivider)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      child: Divider(
+                                        height: 12,
+                                        thickness: 1,
+                                        color: const Color(0xFFE5E7EB),
                                       ),
                                     ),
-                                  );
-                                },
-                                child: BondCard(
-                                  bond: bond,
-                                  highlightQuery: highlightQuery,
-                                ),
-                              ),
-                            );
-                          }),
+                                ],
+                              );
+                            }),
+                          ),
                         ),
-                      ),
-                    ),
-                    failure: (error) => Center(
-                      child: Text('Failed to load: $error'),
-                    ),
+                      );
+                    },
+                    failure: (error) => Center(child: Text('Failed to load: $error')),
                   );
                 },
               ),
