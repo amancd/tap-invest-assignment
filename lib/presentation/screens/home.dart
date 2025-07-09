@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../application/bond_detail/bond_detail_cubit.dart';
 import '../../application/bonds/bond_cubit.dart';
 import '../../injection.dart';
 import '../widgets/BondCard.dart';
+import 'bond_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -128,9 +130,21 @@ class HomeScreenView extends StatelessWidget {
                               padding: EdgeInsets.only(
                                 bottom: index == bonds.length - 1 ? 0 : 12,
                               ),
-                              child: BondCard(
-                                bond: bond,
-                                highlightQuery: highlightQuery,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => BlocProvider(
+                                        create: (_) => getIt<BondDetailCubit>()..loadBondDetail(bond.isin),
+                                        child: const BondDetailScreen(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: BondCard(
+                                  bond: bond,
+                                  highlightQuery: highlightQuery,
+                                ),
                               ),
                             );
                           }),

@@ -1,6 +1,7 @@
+import 'package:assignment/presentation/screens/bond_detail_screen.dart';
+import 'package:assignment/presentation/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'injection.dart';
-import 'presentation/screens/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
